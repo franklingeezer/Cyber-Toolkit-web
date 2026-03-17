@@ -1,815 +1,638 @@
-// ==========================
-// 🔥 SYSTEM LOG FUNCTION
-// ==========================
-
-function addLog(message) {
-
-let logBox = document.getElementById("logs");
-
-if (!logBox) return;
-
-let time = new Date().toLocaleTimeString();
-
-let log = document.createElement("p");
-log.innerText = `[${time}] ${message}`;
-
-logBox.appendChild(log);
-
-// auto scroll
-logBox.scrollTop = logBox.scrollHeight;
-
-}
-
-// ==========================
-// PASSWORD ANALYZER
-// ==========================
-
-function analyzePassword(){
-
-let password=document.getElementById("passwordInput").value;
-let score=0;
-
-if(password.length>=8) score++;
-if(/[A-Z]/.test(password)) score++;
-if(/[a-z]/.test(password)) score++;
-if(/[0-9]/.test(password)) score++;
-if(/[^A-Za-z0-9]/.test(password)) score++;
-
-let result="Weak";
-
-if(score==5) result="Very Strong";
-else if(score>=4) result="Strong";
-else if(score>=3) result="Medium";
-
-document.getElementById("strengthResult").innerText="Strength: "+result;
-document.getElementById("strengthVisual").innerText="Strength Level: "+result;
-
-// 🔥 LOGICAL TIPS (THIS MAKES IT SMART)
-let tips = "";
-
-if(password.length < 8) tips += "Use at least 8 characters. ";
-if(!/[A-Z]/.test(password)) tips += "Add uppercase letters. ";
-if(!/[0-9]/.test(password)) tips += "Include numbers. ";
-if(!/[^A-Za-z0-9]/.test(password)) tips += "Use special characters. ";
-
-document.getElementById("securityTips").innerText =
-tips || "Good password 👍";
-
-// 🔥 LOGS
-let logBox = document.getElementById("passwordLogs");
-
-if(logBox){
-let time = new Date().toLocaleTimeString();
-let log = document.createElement("p");
-log.innerText = `[${time}] Password checked → ${result}`;
-logBox.appendChild(log);
-logBox.scrollTop = logBox.scrollHeight;
-}
-
-addLog("Password module used");
-
-}
-
-// ==========================
-// PASSWORD GENERATOR
-// ==========================
-
-function generatePassword(){
-
-let chars="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%";
-let password="";
-
-for(let i=0;i<12;i++){
-password+=chars[Math.floor(Math.random()*chars.length)];
-}
-
-document.getElementById("generatedPassword").innerText=password;
-
-addLog("Secure password generated");
-
-}
-
-// ==========================
-// ENCRYPT TEXT
-// ==========================
-
-function encryptText(){
-
-let text=document.getElementById("cipherText").value;
-let shift=parseInt(document.getElementById("shiftValue").value);
-
-if(!text || isNaN(shift)){
-alert("Enter text and shift!");
-return;
-}
-
-let result="";
-
-for(let i=0;i<text.length;i++){
-
-let c=text.charCodeAt(i);
-
-if(c>=65 && c<=90)
-result+=String.fromCharCode((c-65+shift)%26+65);
-
-else if(c>=97 && c<=122)
-result+=String.fromCharCode((c-97+shift)%26+97);
-
-else
-result+=text[i];
-
-}
-
-document.getElementById("cipherResult").innerText=result;
-document.getElementById("cipherShiftInfo").innerText="Shift: +"+shift;
-
-// LOG
-addEncryptionLog("Text encrypted (shift " + shift + ")");
-
-addLog("Encryption used");
-
-}
-
-// ==========================
-// FILE ENCRYPTION
-// ==========================
-
-function encryptFile(){
-
-let file=document.getElementById("fileInput").files[0];
-let shift=parseInt(document.getElementById("fileShift").value);
-
-if(!file){
-alert("Please select a file");
-return;
-}
-
-let reader=new FileReader();
-
-reader.onload=function(e){
-
-let text=e.target.result;
-let result="";
-
-for(let i=0;i<text.length;i++){
-
-let c=text.charCodeAt(i);
-
-if(c>=65 && c<=90)
-result+=String.fromCharCode((c-65+shift)%26+65);
-
-else if(c>=97 && c<=122)
-result+=String.fromCharCode((c-97+shift)%26+97);
-
-else
-result+=text[i];
-
-}
-
-document.getElementById("fileResult").innerText="File encrypted successfully!";
-
-let blob=new Blob([result],{type:"text/plain"});
-
-let link=document.createElement("a");
-link.href=URL.createObjectURL(blob);
-link.download="encrypted.txt";
-link.click();
-
-addLog("File encrypted & downloaded");
-
-};
-
-reader.readAsText(file);
-
-}
-
-// ==========================
-// HASH GENERATOR
-// ==========================
-
-async function generateHash(){
-
-let text=document.getElementById("hashInput").value;
-
-if(!text){
-alert("Enter text first!");
-return;
-}
-
-let encoder=new TextEncoder();
-let data=encoder.encode(text);
-
-let hashBuffer=await crypto.subtle.digest("SHA-256",data);
-
-let hashArray=Array.from(new Uint8Array(hashBuffer));
-
-let hashHex=hashArray
-.map(b=>b.toString(16).padStart(2,"0"))
-.join("");
-
-document.getElementById("hashResult").innerText=hashHex;
-
-addLog("SHA-256 hash generated");
-
-}
-
-// ==========================
-// BRUTE FORCE SIMULATOR
-// ==========================
-
-async function startCrack(){
-
-let target = document.getElementById("targetPassword").value;
-let resultBox = document.getElementById("crackResult");
-
-let attemptsBox = document.getElementById("attemptCount");
-let timeBox = document.getElementById("timeTaken");
-let statusBox = document.getElementById("attackStatus");
-
-if(!target){
-alert("Enter a password to simulate cracking.");
-return;
-}
-
-let chars="abcdefghijklmnopqrstuvwxyz0123456789";
-let attempt="";
-let attempts=0;
-
-let startTime = Date.now();
-
-function sleep(ms){
-return new Promise(resolve=>setTimeout(resolve,ms));
-}
-
-statusBox.innerText = "Status: Attacking...";
-addCrackLog("Brute force attack started");
-
-for(let i=0;i<chars.length;i++){
-for(let j=0;j<chars.length;j++){
-for(let k=0;k<chars.length;k++){
-
-attempt = chars[i]+chars[j]+chars[k];
-attempts++;
-
-resultBox.innerText = "Trying: " + attempt;
-attemptsBox.innerText = "Attempts: " + attempts;
-
-await sleep(10);
-
-if(attempt === target){
-
-let time = ((Date.now() - startTime)/1000).toFixed(2);
-
-resultBox.innerText =
-"✅ Password Cracked!\n\n"+
-"Password: "+attempt+"\n"+
-"Attempts: "+attempts+"\n"+
-"Time: "+time+"s";
-
-timeBox.innerText = "Time: " + time + "s";
-statusBox.innerText = "Status: Success";
-
-addCrackLog("Password cracked in " + attempts + " attempts");
-
-return;
-
-}
-
-}}}
-
-let time = ((Date.now() - startTime)/1000).toFixed(2);
-
-resultBox.innerText = "❌ Password not found (3-char limit)";
-timeBox.innerText = "Time: " + time + "s";
-statusBox.innerText = "Status: Failed";
-
-addCrackLog("Attack failed");
-
-}
-
-function addCrackLog(message){
-
-let logBox = document.getElementById("crackLogs");
-
-if(!logBox) return;
-
-let time = new Date().toLocaleTimeString();
-
-let log = document.createElement("p");
-log.innerText = `[${time}] ${message}`;
-
-logBox.appendChild(log);
-logBox.scrollTop = logBox.scrollHeight;
-
-}
-
-// ==========================
-// SECTION SWITCH + ACTIVE MENU
-// ==========================
-
-function showSection(section){
-
-// hide sections
-document.querySelectorAll(".toolSection")
-.forEach(sec=>sec.classList.remove("active"));
-
-// show selected
-document.getElementById(section+"Section")
-.classList.add("active");
-
-// sidebar active effect
-document.querySelectorAll(".sidebar ul li")
-.forEach(li=>li.classList.remove("active"));
-
-event.target.classList.add("active");
-
-// log it
-addLog("Switched to " + section + " module");
-
-// remove focus when switching sections
-let terminalInput = document.getElementById("terminalInput");
-
-if(terminalInput){
-terminalInput.blur();
-}
-
-}
-
-// ==========================
-// INITIAL LOAD
-// ==========================
-
+// ==========================================
+// --- INITIALIZATION & CORE SYSTEMS ---
+// ==========================================
 window.onload = () => {
-showSection("dashboard");
-addLog("System initialized");
-addLog("All modules loaded");
+    startMatrix();
+    updateClock();
+    setInterval(updateStats, 2000);
+    setInterval(updateClock, 1000);
+    setInterval(updateTrafficMonitor, 200); // Start the network monitor
+    
+    addLog("SYSTEM_BOOT_SEQUENCE_COMPLETE");
+    addLog("ALL_MODULES_VERIFIED");
+    
+    // Auto-focus terminal on load
+    const termInput = document.getElementById('terminalInput');
+    if(termInput) termInput.focus();
 };
 
+// --- MATRIX BACKGROUND ---
+function startMatrix() {
+    const canvas = document.getElementById('matrixCanvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
 
-// ==========================
-// 🔥 LIVE SYSTEM STATS
-// ==========================
+    const chars = "01ABCDEFGHIJKLMNOPQRSTUVWXYZｦｧｨｩｪｫｬｭｮｯ";
+    const fontSize = 16;
+    const columns = canvas.width / fontSize;
+    const drops = Array(Math.floor(columns)).fill(1);
 
-function updateStats(){
+    function draw() {
+        ctx.fillStyle = "rgba(2, 6, 23, 0.05)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "#38bdf8"; 
+        ctx.font = fontSize + "px monospace";
 
-let cpu = document.getElementById("cpuStat");
-let net = document.getElementById("networkStat");
-let threat = document.getElementById("threatStat");
-
-if(!cpu) return;
-
-// random CPU
-cpu.innerText = Math.floor(Math.random()*60+20) + "%";
-
-// random network
-let states = ["Stable","Monitoring","Active","Secured"];
-net.innerText = states[Math.floor(Math.random()*states.length)];
-
-// random threats (rare)
-let t = Math.random();
-if(t > 0.85){
-threat.innerText = "1";
-addLog("⚠ Potential threat detected");
-} else {
-threat.innerText = "0";
+        for (let i = 0; i < drops.length; i++) {
+            const text = chars.charAt(Math.floor(Math.random() * chars.length));
+            ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+            if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+            drops[i]++;
+        }
+    }
+    setInterval(draw, 50);
 }
 
+// --- NAVIGATION ---
+function showSection(sectionId) {
+    document.querySelectorAll('.toolSection').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.sidebar li').forEach(l => l.classList.remove('active'));
+    
+    const targetSection = document.getElementById(sectionId + 'Section');
+    const targetNav = document.getElementById('nav-' + sectionId);
+    
+    if(targetSection) targetSection.classList.add('active');
+    if(targetNav) targetNav.classList.add('active');
+    
+    document.getElementById('pageTitle').innerText = sectionId.toUpperCase() + " // MODULE";
+    addLog(`Switched to ${sectionId} module`);
 }
 
-// update every 2 sec
-setInterval(updateStats,2000);
-
-function decryptText(){
-
-let text=document.getElementById("cipherText").value;
-let shift=parseInt(document.getElementById("shiftValue").value);
-
-if(!text || isNaN(shift)){
-alert("Enter text and shift!");
-return;
-}
-
-let result="";
-
-for(let i=0;i<text.length;i++){
-
-let c=text.charCodeAt(i);
-
-if(c>=65 && c<=90)
-result+=String.fromCharCode((c-65-shift+26)%26+65);
-
-else if(c>=97 && c<=122)
-result+=String.fromCharCode((c-97-shift+26)%26+97);
-
-else
-result+=text[i];
-
-}
-
-document.getElementById("cipherResult").innerText=result;
-document.getElementById("cipherShiftInfo").innerText="Shift: -"+shift;
-
-addEncryptionLog("Text decrypted (shift " + shift + ")");
-
-}
-
-function smartDecrypt(){
-
-let text=document.getElementById("cipherText").value;
-
-if(!text){
-alert("Enter text first!");
-return;
-}
-
-let results=[];
-let commonWords=["the","and","is","you","hello","hi"];
-
-for(let shift=1; shift<26; shift++){
-
-let result="";
-
-for(let i=0;i<text.length;i++){
-
-let c=text.charCodeAt(i);
-
-if(c>=65 && c<=90)
-result+=String.fromCharCode((c-65-shift+26)%26+65);
-
-else if(c>=97 && c<=122)
-result+=String.fromCharCode((c-97-shift+26)%26+97);
-
-else
-result+=text[i];
-
-}
-
-// score readability
-let score=0;
-let lower=result.toLowerCase();
-
-commonWords.forEach(word=>{
-if(lower.includes(word)) score++;
+// ==========================================
+// --- TERMINAL ENGINE ---
+// ==========================================
+document.addEventListener('DOMContentLoaded', () => {
+    const terminalInput = document.getElementById('terminalInput');
+    if (terminalInput) {
+        terminalInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                const command = terminalInput.value.trim();
+                if (command !== "") {
+                    processCommand(command.toLowerCase());
+                }
+                terminalInput.value = ''; 
+            }
+        });
+    }
 });
 
-results.push({shift,result,score});
+function processCommand(cmd) {
+    const output = document.getElementById('terminalOutput');
+    if(!output) return;
+    const cleanCmd = cmd.toLowerCase().trim();
 
+    output.innerHTML += `<p><span style="color: var(--primary)">></span> ${cleanCmd}</p>`;
+
+    if (cleanCmd === 'help') {
+        output.innerHTML += `<p style="color: #22c55e">Available: [status, scan, hack, clear, logs]</p>`;
+    } 
+    else if (cleanCmd === 'status') {
+        const cpu = document.getElementById('cpuStat')?.innerText || "27%";
+        output.innerHTML += `<p style="color: #38bdf8">CORE: ACTIVE | LOAD: ${cpu} | OS: CYBER_OS v2.4</p>`;
+    } 
+    else if (cleanCmd === 'clear') {
+        output.innerHTML = '';
+        return; 
+    } 
+    else if (cleanCmd === 'scan') {
+        output.innerHTML += `<p>Scanning system nodes...</p>`;
+        setTimeout(() => {
+            output.innerHTML += `<p style="color: #22c55e">SYSTEM SECURE: No threats found.</p>`;
+            output.scrollTop = output.scrollHeight;
+        }, 1000);
+    } 
+    else if (cleanCmd === 'hack') {
+        output.innerHTML += `<p style="color: #ef4444">Initializing bypass sequence...</p>`;
+        setTimeout(() => { output.innerHTML += `<p>Accessing kernel...</p>`; }, 500);
+        setTimeout(() => { output.innerHTML += `<p style="color: #22c55e">SUCCESS: Virtual root access granted.</p>`; }, 1500);
+    }
+    else {
+        output.innerHTML += `<p style="color: #ef4444">Unknown command: ${cleanCmd}</p>`;
+    }
+    output.scrollTop = output.scrollHeight;
 }
 
-// sort best result first
-results.sort((a,b)=>b.score-a.score);
+// ==========================================
+// --- CRACKING LAB (FIXED VERSION) ---
+// ==========================================
+async function startCrack() {
+    const targetInput = document.getElementById('targetPassword');
+    const visual = document.getElementById('crackVisual');
+    const status = document.getElementById('attackStatus');
+    const progress = document.getElementById('crackProgress');
+    const result = document.getElementById('crackResult');
 
-// display results
-let output="🔍 Possible Decryptions:\n\n";
+    const target = targetInput.value.trim();
+    if (!target) return;
 
-results.slice(0,5).forEach(r=>{
-output+=`Shift ${r.shift}: ${r.result}\n\n`;
-});
+    // Reset UI
+    visual.style.color = "var(--primary)";
+    status.innerText = "STATUS: INJECTING DICTIONARY...";
+    progress.style.width = "0%";
+    result.innerText = "Attacking...";
+    addLog(`Initiating Brute Force attack on: ${target}`);
 
-document.getElementById("cipherResult").innerText=output;
+    const chars = "abcdefghijklmnopqrstuvwxyz0123456789!@#$%";
+    let discovered = "";
 
-// log best guess
-addLog("Smart decryption executed (best shift: " + results[0].shift + ")");
+    for (let i = 0; i < target.length; i++) {
+        for (let flicker = 0; flicker < 10; flicker++) {
+            let randomChar = chars[Math.floor(Math.random() * chars.length)];
+            
+            // Safe manual mask building
+            let mask = "";
+            for (let s = i + 1; s < target.length; s++) {
+                mask += "*";
+            }
+            
+            visual.innerText = discovered + randomChar + mask;
+            await new Promise(r => setTimeout(r, 35));
+        }
+        discovered += target[i];
+        progress.style.width = Math.floor(((i + 1) / target.length) * 100) + "%";
+    }
 
-document.getElementById("cipherShiftInfo").innerText =
-"Detected Shift: " + results[0].shift;
+    // Success State
+    visual.innerText = discovered;
+    visual.style.color = "var(--accent-green)";
+    status.innerText = "STATUS: ACCESS GRANTED";
+    result.innerHTML = `<span style="color:var(--accent-green)">SUCCESS:</span> Password recovered: <strong>${target}</strong>`;
+    terminalLog(`BRUTE FORCE SUCCESS: Target "${target}" decrypted.`);
 
-addEncryptionLog("Smart decryption executed");
-
+    if (typeof addLog === 'function') {
+        addLog("Brute Force Attack Successful", "success");
+    }
 }
 
-function addEncryptionLog(message){
-
-let logBox = document.getElementById("encryptionLogs");
-
-if(!logBox) return;
-
-let time = new Date().toLocaleTimeString();
-
-let log = document.createElement("p");
-log.innerText = `[${time}] ${message}`;
-
-logBox.appendChild(log);
-logBox.scrollTop = logBox.scrollHeight;
-
+// ==========================================
+// --- CRYPTO TOOLS ---
+// ==========================================
+function generatePassword() {
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+";
+    let password = "";
+    for (let i = 0; i < 16; i++) {
+        password += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    document.getElementById("generatedPassword").innerText = password;
+    addLog("New secure key generated.");
 }
 
-
-
-function printLine(text){
-
-let line = document.createElement("p");
-line.innerText = "> " + text;
-output.appendChild(line);
-
-output.scrollTop = output.scrollHeight;
-
+function analyzePassword() {
+    const input = document.getElementById("passwordInput").value;
+    const result = document.getElementById("strengthResult");
+    if (!input) { result.innerText = "Strength: ---"; return; }
+    
+    let strength = "WEAK";
+    let color = "#ef4444";
+    
+    if (input.length > 8 && /[A-Z]/.test(input) && /[0-9]/.test(input)) {
+        strength = "STRONG";
+        color = "#22c55e";
+    } else if (input.length > 5) {
+        strength = "MEDIUM";
+        color = "#f59e0b";
+    }
+    result.innerHTML = `Strength: <span style="color:${color}">${strength}</span>`;
 }
 
-// COMMAND HANDLER
-function runCommand(cmd){
+async function generateHash() {
+    const text = document.getElementById("hashInput").value;
+    const resultDisplay = document.getElementById("hashResult");
+    
+    if(!text) {
+        addLog("ERR: No input for hasher.");
+        return;
+    }
 
-printLine(cmd);
-
-switch(cmd.toLowerCase()){
-
-case "help":
-printLine("Commands: help, clear, status, scan, logs");
-break;
-
-case "clear":
-output.innerHTML="";
-break;
-
-case "status":
-printLine("System: ACTIVE");
-printLine("Network: STABLE");
-addLog("Status checked via terminal");
-break;
-
-case "scan":
-printLine("Scanning system...");
-setTimeout(()=>{
-printLine("No threats found ✅");
-addLog("System scan completed");
-},1000);
-break;
-
-case "logs":
-printLine("Opening system logs...");
-addLog("Logs accessed from terminal");
-break;
-
-default:
-printLine("Unknown command");
+    const msgBuffer = new TextEncoder().encode(text);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    
+    // --- MODIFIED: REMOVED ALL EXTRA TEXT ---
+    // This updates the box to show ONLY the hash string.
+    resultDisplay.innerText = hashHex;
+    
+    // We still store it in an attribute just in case your copy function needs it
+    resultDisplay.setAttribute('data-raw-hash', hashHex);
+    
+    addLog("Generated SHA-256 Hash");
+    terminalLog("CRYPTO: SHA-256 Hash Generated successfully.");
 }
 
+function encryptText() {
+    let text = document.getElementById("cipherText").value;
+    let shift = parseInt(document.getElementById("shiftValue").value) || 0;
+    let result = text.replace(/[a-z]/gi, (char) => {
+        const start = char <= 'Z' ? 65 : 97;
+        return String.fromCharCode(((char.charCodeAt(0) - start + shift) % 26) + start);
+    });
+    document.getElementById("cipherResult").innerText = result;
+    addLog(`Encrypted text with shift ${shift}`);
 }
 
-// ==========================
-// 🔥 TYPE EFFECT
-// ==========================
-
-function typeLine(text, speed = 30){
-
-return new Promise(resolve => {
-
-let output = document.getElementById("terminalOutput");
-let line = document.createElement("p");
-
-output.appendChild(line);
-
-let i = 0;
-
-function typing(){
-if(i < text.length){
-line.innerHTML += text.charAt(i);
-i++;
-setTimeout(typing, speed);
-} else {
-resolve();
-}
+function decryptText() {
+    let text = document.getElementById("cipherText").value;
+    let shift = parseInt(document.getElementById("shiftValue").value) || 0;
+    let reverseShift = (26 - (shift % 26)) % 26;
+    let result = text.replace(/[a-z]/gi, (char) => {
+        const start = char <= 'Z' ? 65 : 97;
+        return String.fromCharCode(((char.charCodeAt(0) - start + reverseShift) % 26) + start);
+    });
+    document.getElementById("cipherResult").innerHTML = `<span style="color: #38bdf8">DECRYPTED:</span> ${result}`;
+    addLog(`Decrypted text: "${text}" -> "${result}"`);
 }
 
-typing();
+// ==========================================
+// --- NETWORK TOOLS ---
+// ==========================================
+async function scanPorts() {
+    const ip = document.getElementById("targetIP").value;
+    const start = parseInt(document.getElementById("startPort").value);
+    const end = parseInt(document.getElementById("endPort").value);
+    const res = document.getElementById("scanResult");
+    
+    if(!ip || isNaN(start)) return alert("Invalid Scan Parameters");
 
-});
-
+    res.innerHTML = "Scanning...";
+    addLog(`Starting port scan on ${ip}`, 'info');
+    
+    let openPorts = [];
+    for(let i = start; i <= end; i++) {
+        res.innerText = `Testing Port: ${i}...`;
+        await new Promise(r => setTimeout(r, 50)); 
+        if(Math.random() > 0.9) {
+            openPorts.push(i);
+            addLog(`Vulnerability Found: Port ${i} OPEN`, 'warn');
+        }
+    }
+    res.innerHTML = openPorts.length > 0 ? 
+        `<span style="color:#ef4444">Scan Complete. Open: ${openPorts.join(', ')}</span>` : 
+        `<span style="color:#22c55e">Scan Complete. No vulnerabilities found.</span>`;
 }
 
-// ==========================
-// 🚀 BOOT SEQUENCE
-// ==========================
+let trafficPoints = Array(30).fill(0);
+function updateTrafficMonitor() {
+    const canvas = document.getElementById('trafficChart');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    canvas.width = canvas.parentElement.clientWidth;
+    canvas.height = canvas.parentElement.clientHeight;
 
-async function bootSequence(){
+    trafficPoints.push(Math.random() * canvas.height * 0.8);
+    trafficPoints.shift();
 
-await typeLine("> Initializing system...");
-await typeLine("> Loading security modules...");
-await typeLine("> Connecting network...");
-await typeLine("> Access granted ✅");
-await typeLine("> Welcome to CYBER TERMINAL");
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.beginPath();
+    ctx.strokeStyle = '#38bdf8';
+    ctx.lineWidth = 2;
 
-addLog("System boot completed");
+    const step = canvas.width / (trafficPoints.length - 1);
+    for (let i = 0; i < trafficPoints.length; i++) {
+        const x = i * step;
+        const y = canvas.height - trafficPoints[i];
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+    }
+    
+    const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    grad.addColorStop(0, 'rgba(56, 189, 248, 0.3)');
+    grad.addColorStop(1, 'transparent');
+    ctx.lineTo(canvas.width, canvas.height);
+    ctx.lineTo(0, canvas.height);
+    ctx.fillStyle = grad;
+    ctx.fill();
+    ctx.stroke();
 
+    document.getElementById('inboundRate').innerText = (Math.random() * 500).toFixed(1) + " KB/s";
+    document.getElementById('outboundRate').innerText = (Math.random() * 100).toFixed(1) + " KB/s";
 }
 
-window.onload = () => {
-showSection("dashboard");
-bootSequence();
-};
-
-// ==========================
-// ⚡ FAKE HACK EFFECT
-// ==========================
-
-function fakeHack(){
-
-let output = document.getElementById("terminalOutput");
-
-let chars = "01ABCDEF!@#$%^&*";
-let count = 0;
-
-let interval = setInterval(()=>{
-
-let randomLine = "";
-for(let i=0;i<40;i++){
-randomLine += chars[Math.floor(Math.random()*chars.length)];
+// ==========================================
+// --- SYSTEM HELPERS ---
+// ==========================================
+function addLog(msg, type = 'info') {
+    const logs = document.getElementById('logs');
+    if(!logs) return;
+    const time = new Date().toLocaleTimeString();
+    const p = document.createElement('p');
+    let color = type === 'warn' ? '#ef4444' : (type === 'success' ? '#22c55e' : '#38bdf8');
+    p.innerHTML = `<span style="color: #64748b">[${time}]</span> <span style="color: ${color}">${msg}</span>`;
+    logs.prepend(p);
 }
 
-let line = document.createElement("p");
-line.innerText = randomLine;
-
-output.appendChild(line);
-
-output.scrollTop = output.scrollHeight;
-
-count++;
-
-if(count > 15){
-clearInterval(interval);
-let done = document.createElement("p");
-done.innerText = "> Hack simulation complete ✅";
-output.appendChild(done);
+function updateStats() {
+    const cpu = Math.floor(Math.random() * 45) + 10;
+    const cpuStat = document.getElementById('cpuStat');
+    const cpuBar = document.getElementById('cpuBar');
+    if(cpuStat) cpuStat.innerText = cpu + "%";
+    if(cpuBar) cpuBar.style.width = cpu + "%";
 }
 
-},50);
-
+function updateClock() {
+    const sysTime = document.getElementById('sysTime');
+    if(sysTime) sysTime.innerText = new Date().toLocaleTimeString();
 }
 
-// ==========================
-// 💻 TERMINAL COMMANDS UPGRADE
-// ==========================
-
-function runCommand(cmd){
-
-let output = document.getElementById("terminalOutput");
-
-function print(text){
-let line = document.createElement("p");
-line.innerText = "> " + text;
-output.appendChild(line);
-output.scrollTop = output.scrollHeight;
+function downloadLogs() {
+    const logLines = Array.from(document.querySelectorAll('#logs p')).map(p => p.innerText);
+    const blob = new Blob([logLines.join('\n')], { type: 'text/plain' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `cyber_report_${Date.now()}.txt`;
+    link.click();
 }
 
-print(cmd);
+function terminalLog(message) {
+    const output = document.getElementById('terminalOutput');
+    if (!output) return;
 
-switch(cmd.toLowerCase()){
-
-case "help":
-print("Commands: help, clear, status, scan, hack, logs");
-break;
-
-case "clear":
-output.innerHTML="";
-break;
-
-case "status":
-print("System: ACTIVE");
-print("Network: STABLE");
-addLog("Status checked");
-break;
-
-case "scan":
-print("Scanning system...");
-setTimeout(()=>{
-print("No threats found ✅");
-addLog("Scan complete");
-},1000);
-break;
-
-case "hack":
-print("Launching hack simulation...");
-fakeHack();
-addLog("Hack simulation started");
-break;
-
-case "logs":
-print("Opening logs...");
-addLog("Logs viewed");
-break;
-
-default:
-print("Unknown command");
+    const time = new Date().toLocaleTimeString();
+    output.innerHTML += `<p><span style="color: #f59e0b">[${time}]</span> <span style="color: #22c55e">SYSTEM:</span> ${message}</p>`;
+    
+    // Auto-scroll the terminal to the newest line
+    output.scrollTop = output.scrollHeight;
 }
 
+const tasks = [
+    "PING 127.0.0.1 - OK",
+    "SCRAPING_METADATA...",
+    "CLEANING_CACHE_0x4F",
+    "MEM_SYNC_SUCCESS",
+    "ENCRYPT_DAEMON_RUNNING",
+    "VULN_SCAN_COMPLETE"
+];
+
+function startBackgroundFeed() {
+    const container = document.getElementById('taskScroll');
+    if (!container) return;
+
+    setInterval(() => {
+        const task = tasks[Math.floor(Math.random() * tasks.length)];
+        const line = document.createElement('div');
+        line.style.marginBottom = "4px";
+        line.innerText = `[${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'})}] ${task}`;
+        
+        container.prepend(line); // Adds new task to the top
+        
+        if (container.children.length > 8) {
+            container.removeChild(container.lastChild); // Keep it from overflowing
+        }
+    }, 3000); // New activity every 3 seconds
 }
 
-// ==========================
-// ⌨ INPUT LISTENER
-// ==========================
+// Call this when the window loads
+window.addEventListener('load', startBackgroundFeed);
 
-setTimeout(()=>{
+/**
+ * Initializes and executes the tactical network map
+ */
+async function startNetworkScan() {
+    // 1. Setup Elements & Canvas
+    const canvas = document.getElementById('netCanvas');
+    const container = document.getElementById('netMapContainer');
+    const nodeLayer = document.getElementById('nodeLayer');
+    const status = document.getElementById('scanStatus');
+    const log = document.getElementById('scanResult');
+    const ctx = canvas.getContext('2d');
 
-let input = document.getElementById("terminalInput");
+    // Reset UI
+    nodeLayer.innerHTML = "";
+    log.innerHTML = "Initializing uplink... scanning local subnets.";
+    status.innerText = "SCANNING...";
+    status.style.color = "var(--primary)";
 
-input.addEventListener("keypress", function(e){
+    // Set Canvas Dimensions (matches CSS container size)
+    canvas.width = container.offsetWidth;
+    canvas.height = container.offsetHeight;
 
-if(e.key === "Enter"){
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+    let activeNodes = [];
+    let discoveredCount = 0;
+    const maxNodes = 8;
 
-let command = input.value.trim();
-runCommand(command);
-input.value = "";
+    // 2. Node Discovery Loop
+    const scanInterval = setInterval(() => {
+        discoveredCount++;
+        
+        // Calculate circular coordinates
+        const angle = (discoveredCount / maxNodes) * Math.PI * 2;
+        const distance = Math.min(canvas.width, canvas.height) * 0.35; // Responsive radius
+        
+        const targetX = centerX + Math.cos(angle) * distance;
+        const targetY = centerY + Math.sin(angle) * distance;
 
+        // Store for animation
+        activeNodes.push({ 
+            x: targetX, 
+            y: targetY, 
+            offset: Math.random(), // Randomized start position for data pulses
+            ip: `10.0.0.${100 + discoveredCount}` 
+        });
+
+        // Create HTML Node Element
+        const nodeEl = document.createElement('div');
+        nodeEl.className = 'net-node';
+        nodeEl.style.left = `${(targetX / canvas.width) * 100}%`;
+        nodeEl.style.top = `${(targetY / canvas.height) * 100}%`;
+        nodeEl.setAttribute('data-ip', `10.0.0.${100 + discoveredCount}`);
+        nodeLayer.appendChild(nodeEl);
+
+        // System feedback
+        addLog(`Network Discovery: Node ${100 + discoveredCount} online.`, "info");
+        if(typeof terminalLog === 'function') {
+            terminalLog(`NET: Node 10.0.0.${100 + discoveredCount} mapped.`);
+        }
+
+        if (discoveredCount >= maxNodes) {
+            clearInterval(scanInterval);
+            status.innerText = "COMPLETED";
+            status.style.color = "var(--accent-green)";
+            log.innerHTML = `Topology mapping complete. ${maxNodes} nodes active.`;
+            
+            // Start the data pulse animation
+            requestAnimationFrame(animateDataFlow);
+        }
+    }, 600);
+
+    // 3. Animation Loop (Data Packets)
+    function animateDataFlow() {
+        // Clear canvas for next frame
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        activeNodes.forEach(node => {
+            // Draw Connection Line (Static)
+            ctx.beginPath();
+            ctx.setLineDash([5, 5]); // Tactical dashed look
+            ctx.strokeStyle = 'rgba(56, 189, 248, 0.15)';
+            ctx.moveTo(centerX, centerY);
+            ctx.lineTo(node.x, node.y);
+            ctx.stroke();
+            ctx.setLineDash([]); // Reset dash
+
+            // Calculate Pulse Position
+            node.offset += 0.015; // Speed of packets
+            if (node.offset > 1) node.offset = 0;
+
+            const pulseX = centerX + (node.x - centerX) * node.offset;
+            const pulseY = centerY + (node.y - centerY) * node.offset;
+
+            // Draw Pulse Glow
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = 'var(--primary)';
+            
+            // Draw Data Packet (Moving Dot)
+            ctx.beginPath();
+            ctx.fillStyle = 'var(--primary)';
+            ctx.arc(pulseX, pulseY, 2.5, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.shadowBlur = 0; // Reset shadow for next lines
+        });
+
+        // Only keep animating if we are on the network section
+        if (document.getElementById('networkSection').classList.contains('active')) {
+            requestAnimationFrame(animateDataFlow);
+        }
+    }
 }
 
-});
+let activeNodes = []; // Store node positions for the canvas to find them
 
-},500);
+async function startNetworkScan() {
+    const canvas = document.getElementById('netCanvas');
+    const container = document.getElementById('netMapContainer');
+    const nodeLayer = document.getElementById('nodeLayer');
+    const status = document.getElementById('scanStatus');
+    const log = document.getElementById('scanResult');
+    
+    if (!canvas || !container) return; // Safety check
 
-async function scanPorts(){
+    // 1. Initialize Canvas properly inside the function
+    const ctx = canvas.getContext('2d');
+    canvas.width = container.offsetWidth;
+    canvas.height = container.offsetHeight;
 
-let ip = document.getElementById("targetIP").value;
-let start = parseInt(document.getElementById("startPort").value);
-let end = parseInt(document.getElementById("endPort").value);
+    // Reset UI
+    nodeLayer.innerHTML = "";
+    log.innerHTML = "Mapping network topology...";
+    status.innerText = "SCANNING...";
+    status.style.color = "var(--primary)";
 
-let resultBox = document.getElementById("scanResult");
-let summary = document.getElementById("scanSummary");
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+    let activeNodes = [];
+    let discoveredCount = 0;
+    const maxNodes = 8;
 
-if(!ip || isNaN(start) || isNaN(end)){
-alert("Enter valid IP and port range");
-return;
+    // 2. Node Discovery Loop
+    const scanInterval = setInterval(() => {
+        discoveredCount++;
+        
+        const angle = (discoveredCount / maxNodes) * Math.PI * 2;
+        const distance = Math.min(canvas.width, canvas.height) * 0.35;
+        
+        const targetX = centerX + Math.cos(angle) * distance;
+        const targetY = centerY + Math.sin(angle) * distance;
+
+        activeNodes.push({ 
+            x: targetX, 
+            y: targetY, 
+            offset: Math.random()
+        });
+
+        const nodeEl = document.createElement('div');
+        nodeEl.className = 'net-node';
+        nodeEl.style.left = `${(targetX / canvas.width) * 100}%`;
+        nodeEl.style.top = `${(targetY / canvas.height) * 100}%`;
+        nodeEl.setAttribute('data-ip', `192.168.1.${100 + discoveredCount}`);
+        nodeLayer.appendChild(nodeEl);
+
+        if (discoveredCount >= maxNodes) {
+            clearInterval(scanInterval);
+            status.innerText = "COMPLETED";
+            status.style.color = "var(--accent-green)";
+            requestAnimationFrame(animateDataFlow);
+        }
+    }, 600);
+
+    // 3. Animation Loop for Data Pulses
+    function animateDataFlow() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        activeNodes.forEach(node => {
+            // Draw Connection Line
+            ctx.beginPath();
+            ctx.setLineDash([5, 5]);
+            ctx.strokeStyle = 'rgba(56, 189, 248, 0.2)';
+            ctx.moveTo(centerX, centerY);
+            ctx.lineTo(node.x, node.y);
+            ctx.stroke();
+
+            // Animate Pulse
+            node.offset += 0.015;
+            if (node.offset > 1) node.offset = 0;
+
+            const pulseX = centerX + (node.x - centerX) * node.offset;
+            const pulseY = centerY + (node.y - centerY) * node.offset;
+
+            ctx.beginPath();
+            ctx.fillStyle = 'var(--primary)';
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = 'var(--primary)';
+            ctx.arc(pulseX, pulseY, 2.5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+        });
+
+        if (document.getElementById('networkSection').classList.contains('active')) {
+            requestAnimationFrame(animateDataFlow);
+        }
+    }
 }
 
-resultBox.innerText = "";
-summary.innerText = "Status: Scanning...";
+function copyHash() {
+    // 1. Get the text from your hashResult div
+    const hashDiv = document.getElementById('hashResult');
+    const textToCopy = hashDiv.innerText.trim();
 
-addNetworkLog("Scan started on " + ip);
+    // 2. Stop if there is no hash
+    if (!textToCopy || textToCopy === "Awaiting input...") {
+        if (typeof addLog === "function") addLog("ERR: No hash to copy.");
+        return;
+    }
 
-let openPorts = [];
+    // 3. THE BACKUP TRICK: Create a hidden textarea
+    const textArea = document.createElement("textarea");
+    textArea.value = textToCopy;
+    document.body.appendChild(textArea);
+    textArea.select();
 
-function sleep(ms){
-return new Promise(resolve => setTimeout(resolve, ms));
+    try {
+        // Attempt the old-school copy command
+        const successful = document.execCommand('copy');
+        document.body.removeChild(textArea); // Clean up
+
+        if (successful) {
+            // Visual feedback for the user
+            const btn = event.target;
+            const originalText = btn.innerHTML;
+            
+            btn.innerHTML = '<i class="fa-solid fa-check"></i> COPIED!';
+            btn.style.color = "#22c55e"; // Green
+
+            if (typeof addLog === "function") addLog("SYS: Signature copied (Legacy Mode).");
+
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.style.color = "";
+            }, 2000);
+        }
+    } catch (err) {
+        console.error('Fallback copy failed', err);
+        alert("Manual Copy Required: " + textToCopy);
+    }
 }
-
-// simulate scanning
-for(let port = start; port <= end; port++){
-
-resultBox.innerText = "Scanning port: " + port;
-
-await sleep(50);
-
-// random open/closed simulation
-if(Math.random() > 0.8){
-openPorts.push(port);
-addNetworkLog("Port " + port + " is OPEN");
-} else {
-addNetworkLog("Port " + port + " is closed");
-}
-
-}
-
-let output = "Scan Complete\n\n";
-
-if(openPorts.length === 0){
-output += "No open ports found";
-summary.innerText = "Status: Secure";
-} else {
-output += "Open Ports:\n" + openPorts.join(", ");
-summary.innerText = "Status: Vulnerable (" + openPorts.length + " open)";
-}
-
-resultBox.innerText = output;
-
-addNetworkLog("Scan completed");
-
-addLog("Network scan executed");
-
-}
-
-function addNetworkLog(message){
-
-let logBox = document.getElementById("networkLogs");
-
-if(!logBox) return;
-
-let time = new Date().toLocaleTimeString();
-
-let log = document.createElement("p");
-log.innerText = `[${time}] ${message}`;
-
-logBox.appendChild(log);
-logBox.scrollTop = logBox.scrollHeight;
-
-}
-
-document.addEventListener("DOMContentLoaded", () => {
-
-let input = document.getElementById("terminalInput");
-
-if(!input) return;
-
-input.addEventListener("keypress", function(e){
-
-if(e.key === "Enter"){
-
-let command = input.value.trim();
-
-runCommand(command);
-
-input.value = "";
-
-}
-
-});
-
-});
