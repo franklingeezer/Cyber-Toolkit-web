@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Cyber Terminal</title>
+
+<link rel="stylesheet" href="style.css">
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body>
+
+<div class="layout">
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+
+<h2><i class="fa-solid fa-terminal"></i> CYBER</h2>
+
+<ul>
+<li onclick="showSection('dashboard')" class="active">Dashboard</li>
+<li onclick="showSection('password')">Password Tools</li>
+<li onclick="showSection('encryption')">Encryption</li>
+<li onclick="showSection('network')">Network</li>
+<li onclick="showSection('files')">File Tools</li>
+<li onclick="showSection('crack')">Cracking Lab</li>
+</ul>
+
+</aside>
+
+<!-- CONTENT -->
+<main class="content">
+
+<h1 id="pageTitle">Cyber Dashboard</h1>
+
+<!-- ================= DASHBOARD ================= -->
+
+<div id="dashboardSection" class="toolSection active">
+
+<div class="dashboard-grid">
+
+<!-- SYSTEM CORE -->
+<div class="card big-card">
+<h2>🧠 System Core</h2>
+<p>Status: <span class="green">ACTIVE</span></p>
+<p>Environment: Local Machine</p>
+<p>Modules Loaded: 7</p>
+<button>Launch Terminal</button>
+</div>
+
+<!-- STATS -->
+<div class="card stat-card">
+<h3>⚡ CPU</h3>
+<p id="cpuStat">23%</p>
+</div>
+
+<div class="card stat-card">
+<h3>🌐 Network</h3>
+<p id="networkStat">Stable</p>
+</div>
+
+<div class="card stat-card">
+<h3>🔐 Threats</h3>
+<p id="threatStat">0</p>
+</div>
+
+<!-- LOGS -->
+<div class="card log-card">
+<h2>📜 System Logs</h2>
+<div class="logs" id="logs">
+<p>[BOOT] Initializing system...</p>
+</div>
+</div>
+
+<!-- TERMINAL -->
+<div class="card terminal-card">
+<h2>💻 Terminal</h2>
+
+<div class="terminal-output" id="terminalOutput"></div>
+
+<input type="text" id="terminalInput" placeholder="Type a command...">
+</div>
+
+</div>
+</div> <!-- ✅ FIXED (dashboard closed) -->
+
+<!-- ================= PASSWORD ================= -->
+
+<div id="passwordSection" class="toolSection">
+
+<h2 class="section-title">🔐 Password Security</h2>
+<p class="section-desc">
+Analyze password strength and generate secure credentials.
+</p>
+
+<div class="container">
+
+<!-- ANALYZER -->
+<div class="card">
+
+<h2>Password Analyzer</h2>
+
+<input type="password" id="passwordInput" placeholder="Enter password">
+
+<button onclick="analyzePassword()">Analyze</button>
+
+<div class="result" id="strengthResult"></div>
+
+<!-- LOGICAL ADDITION -->
+<div class="mini-info">
+<p id="strengthVisual">Strength: ---</p>
+<p id="securityTips">Tips will appear here</p>
+</div>
+
+</div>
+
+<!-- GENERATOR -->
+<div class="card">
+
+<h2>Password Generator</h2>
+
+<button onclick="generatePassword()">Generate Secure Password</button>
+
+<div class="result" id="generatedPassword"></div>
+
+</div>
+
+</div>
+
+<!-- LOGS (FULL WIDTH = SYSTEM FEEL) -->
+<div class="card log-card">
+
+<h2>📜 Activity Logs</h2>
+
+<div class="logs" id="passwordLogs">
+<p>[READY] Password module initialized</p>
+</div>
+
+</div>
+
+</div>
+
+<!-- ================= ENCRYPTION ================= -->
+
+<div id="encryptionSection" class="toolSection">
+
+<h2 class="section-title">🔐 Encryption Module</h2>
+<p class="section-desc">
+Perform basic encryption and hashing operations.
+</p>
+
+<div class="container">
+
+<!-- CAESAR TOOL -->
+<div class="card">
+
+<h2>Caesar Cipher</h2>
+
+<input type="text" id="cipherText" placeholder="Enter text">
+<input type="number" id="shiftValue" placeholder="Shift value">
+
+<button onclick="encryptText()">Encrypt</button>
+<button onclick="decryptText()">Decrypt</button>
+<button onclick="smartDecrypt()">🧠 Smart</button>
+
+<div class="result" id="cipherResult"></div>
+
+<!-- 🔥 EXTRA INFO -->
+<div class="mini-info">
+<p id="cipherInfo">Method: Caesar Cipher</p>
+<p id="cipherShiftInfo">Shift: -</p>
+</div>
+
+</div>
+
+<!-- HASH TOOL -->
+<div class="card">
+
+<h2>Hash Generator (SHA-256)</h2>
+
+<input type="text" id="hashInput" placeholder="Enter text">
+
+<button onclick="generateHash()">Generate Hash</button>
+
+<div class="result" id="hashResult"></div>
+
+<div class="mini-info">
+<p>One-way encryption (cannot be reversed)</p>
+</div>
+
+</div>
+
+</div>
+
+<!-- 🔥 LOG PANEL -->
+<div class="card log-card">
+
+<h2>📜 Encryption Logs</h2>
+
+<div class="logs" id="encryptionLogs">
+<p>[READY] Encryption module initialized</p>
+</div>
+
+</div>
+
+</div>
+
+<!-- ================= NETWORK ================= -->
+
+<div id="networkSection" class="toolSection">
+
+<h2 class="section-title">🌐 Network Scanner</h2>
+<p class="section-desc">
+Simulate port scanning and analyze network exposure.
+</p>
+
+<div class="container">
+
+<div class="card">
+
+<h2>Port Scanner</h2>
+
+<input type="text" id="targetIP" placeholder="Target IP (e.g. 192.168.0.1)">
+<input type="number" id="startPort" placeholder="Start Port (e.g. 20)">
+<input type="number" id="endPort" placeholder="End Port (e.g. 100)">
+
+<button onclick="scanPorts()">Start Scan</button>
+
+<div class="result" id="scanResult"></div>
+
+<div class="mini-info">
+<p id="scanSummary">Status: Idle</p>
+</div>
+
+</div>
+
+</div>
+
+<!-- 🔥 LOGS -->
+<div class="card log-card">
+
+<h2>📜 Network Logs</h2>
+
+<div class="logs" id="networkLogs">
+<p>[READY] Network scanner initialized</p>
+</div>
+
+</div>
+
+</div>
+
+<!-- ================= FILE ================= -->
+
+<div id="filesSection" class="toolSection">
+
+<h2 class="section-title">📂 File Tools</h2>
+<p class="section-desc">Encrypt files locally.</p>
+
+<div class="container">
+
+<div class="card">
+<h2>File Encryptor</h2>
+<input type="file" id="fileInput">
+<input type="number" id="fileShift" placeholder="Shift">
+<button onclick="encryptFile()">Encrypt</button>
+<div class="result" id="fileResult"></div>
+</div>
+
+</div>
+</div>
+
+<!-- ================= CRACK ================= -->
+
+<div id="crackSection" class="toolSection">
+
+<h2 class="section-title">🧠 Cracking Lab</h2>
+<p class="section-desc">
+Simulate brute-force password attacks.
+</p>
+
+<div class="container">
+
+<div class="card">
+
+<h2>Password Crack Simulator</h2>
+
+<input type="text" id="targetPassword" placeholder="Enter simple password">
+
+<button onclick="startCrack()">Start Attack</button>
+
+<div class="result" id="crackResult"></div>
+
+<div class="mini-info">
+<p id="attemptCount">Attempts: 0</p>
+<p id="timeTaken">Time: 0s</p>
+<p id="attackStatus">Status: Idle</p>
+</div>
+
+</div>
+
+</div>
+
+<!-- 🔥 LOG PANEL -->
+<div class="card log-card">
+
+<h2>📜 Attack Logs</h2>
+
+<div class="logs" id="crackLogs">
+<p>[READY] Cracking module initialized</p>
+</div>
+
+</div>
+
+</div>
+
+</main>
+
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>
