@@ -636,3 +636,82 @@ function copyHash() {
         alert("Manual Copy Required: " + textToCopy);
     }
 }
+
+function handleFileSelect(input) {
+    const fileNameDisplay = document.getElementById('fileNameDisplay');
+    const encryptBtn = document.getElementById('fileEncryptBtn');
+    const decryptBtn = document.getElementById('fileDecryptBtn');
+
+    if (input.files && input.files[0]) {
+        const file = input.files[0];
+        
+        // --- THE FIX ---
+        // Updates the UI to show the filename in primary color
+        fileNameDisplay.innerHTML = `SELECTED: <span style="color: var(--primary); font-weight: bold;">${file.name}</span>`;
+        
+        // Enable the action buttons
+        encryptBtn.disabled = false;
+        decryptBtn.disabled = false;
+        
+        // Log it to the terminal for that OS feel
+        addLog(`File loaded: ${file.name}`);
+        terminalLog(`VAULT: Initialized buffer for ${file.name} (${file.size} bytes)`);
+    } else {
+        fileNameDisplay.innerHTML = 'Drop file here or <span style="color: var(--primary)">Browse</span>';
+        encryptBtn.disabled = true;
+        decryptBtn.disabled = true;
+    }
+}
+
+async function processFile(action) {
+    const fileInput = document.getElementById('fileSelector');
+    const statusDisplay = document.getElementById('fileStatus');
+    
+    if (!fileInput.files[0]) return;
+
+    const file = fileInput.files[0];
+    const reader = new FileReader();
+
+    statusDisplay.innerText = `Status: ${action === 'encrypt' ? 'SEALING' : 'UNSEALING'}...`;
+    addLog(`Initiating ${action} on ${file.name}`);
+
+    reader.onload = function(e) {
+        try {
+            const rawData = e.target.result;
+            let processedContent;
+
+            if (action === 'encrypt') {
+                // Seal: Convert raw text/binary to Base64
+                processedContent = btoa(rawData);
+                downloadFile(processedContent, `SEALED_${file.name}.lock`, 'text/plain');
+                statusDisplay.innerHTML = 'Status: <span style="color: var(--accent-green)">FILE SEALED</span>';
+            } else {
+                // Unseal: Convert Base64 back to raw data
+                processedContent = atob(rawData);
+                downloadFile(processedContent, file.name.replace('SEALED_', ''), 'application/octet-stream');
+                statusDisplay.innerHTML = 'Status: <span style="color: var(--primary)">FILE UNSEALED</span>';
+            }
+
+            terminalLog(`VAULT: ${action.toUpperCase()} operation successful.`);
+            addLog(`Completed: ${file.name}`);
+
+        } catch (err) {
+            console.error(err);
+            statusDisplay.innerHTML = 'Status: <span style="color: var(--error-red)">ERROR: INVALID DATA</span>';
+            terminalLog("VAULT: Critical failure during buffer transformation.");
+        }
+    };
+
+    // Read as binary string to handle various file types
+    reader.readAsBinaryString(file);
+}
+
+// Helper function to trigger the browser download
+function downloadFile(content, fileName, contentType) {
+    const a = document.createElement("a");
+    const file = new Blob([content], { type: contentType });
+    a.href = URL.createObjectURL(file);
+    a.download = fileName;
+    a.click();
+    URL.revokeObjectURL(a.href);
+}
