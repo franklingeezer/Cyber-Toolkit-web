@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CYBER-TOOLKIT // PRO EDITION</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+<!-- ===== BOOT SCREEN ===== -->
+<div id="bootScreen">
+    <div style="font-family:monospace; font-size:11px; color:#1e3a5f; margin-bottom:18px; letter-spacing:3px;">CYBER_OS // SECURE BOOT</div>
+    <div id="bootLog"></div>
+</div>
+
+<!-- ===== FULL-SCREEN TERMINAL ===== -->
+<div id="terminalFullscreen">
+    <div id="termFullHeader">
+        <span><i class="fa-solid fa-terminal" style="color:var(--primary); margin-right:8px;"></i>CYBER_OS // FULL TERMINAL &nbsp;·&nbsp; <span style="color:var(--primary);">backtick ` </span> to exit</span>
+        <span style="color:var(--primary);">NODE@CYBER_OS:~$</span>
+    </div>
+    <div id="termFullOutput"></div>
+    <div id="termFullInputRow">
+        <span>$</span>
+        <input id="termFullInput" type="text" placeholder="command..." autocomplete="off" spellcheck="false">
+    </div>
+</div>
+
+    <canvas id="matrixCanvas"></canvas>
+    <div class="scanline"></div>
+    <canvas id="meltCanvas"></canvas>
+
+    <div class="layout">
+        <aside class="sidebar">
+            <h2><i class="fa-solid fa-shield-halved"></i> CYBER_OS</h2>
+            <ul>
+                <li onclick="showSection('dashboard')" id="nav-dashboard" class="active">
+                    <i class="fa-solid fa-gauge-high"></i> Dashboard
+                </li>
+                <li onclick="showSection('password')" id="nav-password">
+                    <i class="fa-solid fa-key"></i> Password Tools
+                </li>
+                <li onclick="showSection('encryption')" id="nav-encryption">
+                    <i class="fa-solid fa-user-secret"></i> Encryption
+                </li>
+                <li onclick="showSection('network')" id="nav-network">
+                    <i class="fa-solid fa-network-wired"></i> Network
+                </li>
+                <li onclick="showSection('crack')" id="nav-crack">
+                    <i class="fa-solid fa-microchip"></i> Cracking Lab
+                </li>
+                <li onclick="showSection('soc')" id="nav-soc">
+                    <i class="fa-solid fa-brain"></i> SOC Analyst <span style="font-size:9px; background: var(--primary); color:#000; padding:1px 6px; border-radius:8px; margin-left:4px; font-weight:bold;">AI</span>
+                </li>
+            </ul>
+        </aside>
+
+        <main class="content">
+            <header class="main-header">
+                <h1 id="pageTitle">System Overview</h1>
+                <div class="sys-time" id="sysTime">00:00:00</div>
+            </header>
+
+            <div id="dashboardSection" class="toolSection active">
+    <div class="dashboard-grid">
+        <div class="card big-card">
+            <h3><i class="fa-solid fa-microchip"></i> System Core</h3>
+            <p>Status: <span class="highlight">ACTIVE</span></p>
+            <p>Environment: Local_Node_01</p>
+            <button onclick="addLog('Initializing Deep Scan...')">Initialize Deep Scan</button>
+        </div>
+
+        <div class="card stat-card">
+            <h3><i class="fa-solid fa-bolt"></i> CPU Load</h3>
+            <div style="display: flex; align-items: center; gap: 20px;">
+                <p id="cpuStat" class="stat-value" style="margin: 0;">27%</p>
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; flex-grow: 1;">
+                    <div style="height: 15px; background: var(--primary); opacity: 0.8;"></div>
+                    <div style="height: 15px; background: var(--primary); opacity: 0.6;"></div>
+                    <div style="height: 15px; background: var(--primary); opacity: 0.4;"></div>
+                    <div style="height: 15px; background: rgba(255,255,255,0.1);"></div>
+                </div>
+            </div>
+            <div class="progress-bar" style="margin-top: 10px;"><div id="cpuBar" style="width: 27%"></div></div>
+        </div>
+
+        <div class="card stat-card">
+            <h3><i class="fa-solid fa-network-wired"></i> Network</h3>
+            <div style="display: flex; align-items: center; gap: 20px;">
+                <p id="networkStat" class="stat-value" style="margin: 0;">Stable</p>
+                <div style="font-size: 10px; color: var(--accent-green); letter-spacing: 1px;">LINK: UP // 1GBPS</div>
+            </div>
+            <div class="progress-bar" style="margin-top: 10px;"><div id="netBar" style="width: 100%; background: #22c55e;"></div></div>
+        </div>
+
+        <div class="card log-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h3><i class="fa-solid fa-list-ul"></i> System Logs</h3>
+                <button onclick="downloadLogs()" class="mini-btn" style="width: auto; padding: 8px 25px; font-size: 12px; font-weight: bold; letter-spacing: 1px; border: 1px solid var(--primary);">
+                    <i class="fa-solid fa-file-export"></i> EXPORT SYSTEM LOG
+                </button>
+            </div>
+            <div class="logs" id="logs" style="background: rgba(0,0,0,0.4); border-radius: 4px; padding: 15px; height: 180px; border: 1px solid rgba(56, 189, 248, 0.1);"></div>
+        </div>
+
+        <div class="card terminal-card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <h3><i class="fa-solid fa-terminal"></i> Command Terminal</h3>
+        <div style="display:flex; align-items:center; gap:10px;">
+            <span style="font-size: 10px; color: var(--primary); opacity: 0.8; font-family: monospace;">NODE@CYBER_OS:~$</span>
+            <button onclick="toggleFullTerminal()" class="mini-btn" title="Full-screen terminal (` key)"><i class="fa-solid fa-expand"></i> EXPAND</button>
+        </div>
+    </div>
+    
+    <div class="terminal-container" style="display: flex; gap: 10px; background: rgba(0,0,0,0.5); border-radius: 4px; padding: 15px; height: 160px; border-left: 2px solid var(--primary);">
+        <div id="terminalOutput" style="flex: 2; overflow-y: auto; font-size: 12px; font-family: monospace;"></div>
+        
+        <div id="activityFeed" style="flex: 1; border-left: 1px solid rgba(56, 189, 248, 0.1); padding-left: 10px; font-size: 9px; color: #64748b; font-family: monospace; overflow: hidden;">
+            <div style="color: var(--primary); margin-bottom: 5px;">> BACKGROUND_TASKS</div>
+            <div id="taskScroll"></div>
+        </div>
+    </div>
+
+    <div class="terminal-input-wrapper" style="margin-top: 12px; background: rgba(0,0,0,0.3); padding: 5px 10px; border-radius: 4px;">
+        <span style="color: var(--primary); font-weight: bold;">$</span>
+        <input type="text" id="terminalInput" placeholder="Type 'help' for commands · Ctrl+K to jump sections" style="background: transparent; border: none; color: #fff; width: 90%; outline: none; margin-left: 10px;">
+    </div>
+</div>
+    </div>
+</div>
+
+            <div id="passwordSection" class="toolSection">
+                <div class="dashboard-grid">
+                    <div class="card">
+                        <h3><i class="fa-solid fa-key"></i> Pass-Gen Pro</h3>
+                        <button onclick="generatePassword()">Generate Secure Key</button>
+                        <div class="result" id="generatedPassword">Waiting...</div>
+                    </div>
+                    <div class="card">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <h3 style="margin:0;"><i class="fa-solid fa-clock-rotate-left"></i> Recent Keys</h3>
+                            <button onclick="clearPasswordVault()" class="mini-btn" style="width:auto; padding:4px 12px; font-size:10px;">CLEAR</button>
+                        </div>
+                        <div id="pwVaultList" style="font-size: 12px; max-height: 160px; overflow-y: auto;"></div>
+                    </div>
+                    <div class="card">
+                        <h3><i class="fa-solid fa-fingerprint"></i> Entropy Analyzer</h3>
+                        <input type="password" id="passwordInput" placeholder="Analyze string..." oninput="analyzePassword()">
+                        <div class="result" id="strengthResult">Strength: ---</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="encryptionSection" class="toolSection">
+                <div class="dashboard-grid">
+                    <div class="card">
+                        <h3><i class="fa-solid fa-user-secret"></i> AES/Caesar Cipher</h3>
+                        <input type="text" id="cipherText" placeholder="Enter message...">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-top: 10px;">
+                            <span style="font-size: 12px; color: var(--primary);">SHIFT:</span>
+                            <input type="number" id="shiftValue" value="3" style="width: 60px;">
+                        </div>
+                        <div style="display: flex; gap: 10px; margin-top: 15px;">
+                            <button onclick="encryptText()" style="flex: 1;">Encrypt</button>
+                            <button onclick="decryptText()" style="flex: 1; background: transparent; border: 1px solid var(--primary); color: var(--primary);">Decrypt</button>
+                        </div>
+                        <div class="result" id="cipherResult">Awaiting input...</div>
+                    </div>
+
+                    <div class="card">
+                        <h3><i class="fa-solid fa-hashtag"></i> SHA-256 Hasher</h3>
+                        <input type="text" id="hashInput" placeholder="String to hash...">
+                        <button onclick="generateHash()" style="margin-bottom: 10px;">Generate Fingerprint</button>
+                        <div id="hashResult" style="font-size: 11px; word-break: break-all; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 4px; border: 1px solid rgba(56, 189, 248, 0.2); min-height: 50px; position: relative;">
+                            <span style="opacity: 0.5;">Awaiting input...</span>
+                        </div>
+                        <button onclick="copyHash()" class="mini-btn" style="margin-top: 8px; font-size: 10px;">
+                            COPY SIGNATURE
+                        </button>
+                    </div>
+
+                    <div class="card big-card">
+                        <h3><i class="fa-solid fa-vault"></i> File Security Vault <span style="font-size: 10px; color: var(--accent-green); border: 1px solid var(--accent-green); padding: 2px 8px; border-radius: 10px; margin-left: 8px;">REAL AES-256-GCM</span></h3>
+                        <div class="file-upload-zone" style="border: 2px dashed rgba(56, 189, 248, 0.3); padding: 30px; text-align: center; border-radius: 12px; margin-top: 10px;">
+                            <input type="file" id="fileSelector" style="display: none;" onchange="handleFileSelect(this)">
+                            <label for="fileSelector" style="cursor: pointer;">
+                                <i class="fa-solid fa-file-shield" style="font-size: 2.5rem; color: var(--primary); display: block; margin-bottom: 10px;"></i>
+                                <span id="fileNameDisplay">Drop file here or <span style="color: var(--primary)">Browse</span></span>
+                            </label>
+                        </div>
+                        <div style="display: flex; gap: 15px; margin-top: 15px;">
+                            <button onclick="processFile('encrypt')" id="fileEncryptBtn" disabled style="flex: 1;">Seal File (set passphrase)</button>
+                            <button onclick="processFile('decrypt')" id="fileDecryptBtn" disabled style="flex: 1; background: #1e293b;">Unseal File (enter passphrase)</button>
+                        </div>
+                        <div id="fileStatus" class="result" style="font-size: 12px;">Status: System Ready</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="networkSection" class="toolSection">
+    <div class="dashboard-grid">
+        <div class="card">
+            <h3><i class="fa-solid fa-globe"></i> Real Network Identity <span style="font-size: 10px; color: var(--accent-green); border: 1px solid var(--accent-green); padding: 2px 8px; border-radius: 10px; margin-left: 8px;">LIVE DATA</span></h3>
+            <p style="font-size: 12px; color: #94a3b8; margin-bottom: 10px;">Your real public IP, ISP, and approximate location — no simulation.</p>
+            <button onclick="lookupSelf()">Run Identity Lookup</button>
+            <div class="result" id="identityResult" style="font-size: 12px; margin-top: 12px;">Status: Not yet checked</div>
+        </div>
+
+        <div class="card big-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h3><i class="fa-solid fa-network-wired"></i> Global Node Scanner <span style="font-size: 10px; color: #f59e0b; border: 1px solid #f59e0b; padding: 2px 8px; border-radius: 10px; margin-left: 8px;">SIMULATED VISUAL</span></h3>
+                <div class="status-indicator" id="scanStatus">IDLE</div>
+            </div>
+            
+            <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                <input type="text" id="targetIP" placeholder="Enter Range (e.g. 192.168.1.0/24)" style="flex: 2;">
+                <button onclick="startNetworkScan()" style="flex: 1;">SCAN NETWORK</button>
+            </div>
+
+            <div id="netMapContainer" style="position: relative; background: rgba(0,0,0,0.4); height: 300px; border-radius: 8px; border: 1px solid rgba(56, 189, 248, 0.2); overflow: hidden;">
+                <canvas id="netCanvas" style="position: absolute; top:0; left:0;"></canvas>
+                
+                <div id="coreNode" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10; text-align: center;">
+                    <div style="width: 40px; height: 40px; background: var(--primary); border-radius: 50%; box-shadow: 0 0 20px var(--primary); margin: 0 auto; display: flex; align-items: center; justify-content: center;">
+                        <i class="fa-solid fa-server" style="color: #000; font-size: 1.2rem;"></i>
+                    </div>
+                    <div style="font-size: 10px; color: var(--primary); margin-top: 5px; font-weight: bold;">LOCAL_HOST</div>
+                </div>
+                
+                <div id="nodeLayer" style="position: absolute; width: 100%; height: 100%; top: 0; left: 0;"></div>
+            </div>
+
+            <div id="scanResult" class="result" style="margin-top: 15px; font-size: 11px; max-height: 80px; overflow-y: auto;">
+                Awaiting uplink initiation...
+            </div>
+        </div>
+    </div>
+</div>
+
+            <div id="crackSection" class="toolSection">
+                <div class="dashboard-grid">
+                    <div class="card big-card">
+                        <h3><i class="fa-solid fa-user-secret"></i> Brute Force Simulator <span style="font-size: 10px; color: #f59e0b; border: 1px solid #f59e0b; padding: 2px 8px; border-radius: 10px; margin-left: 8px;">SIMULATED VISUAL — reveals the password you entered, for demo purposes only</span></h3>
+                        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                            <input type="text" id="targetPassword" placeholder="Set Target Password" style="flex: 2;">
+                            <button onclick="startCrack()" style="flex: 1;">Execute Attack</button>
+                        </div>
+                        <div id="crackDisplay" style="background: rgba(0,0,0,0.5); padding: 20px; border-radius: 8px; text-align: center;">
+                            <div id="crackVisual" style="font-family: monospace; font-size: 1.5rem; color: var(--primary); letter-spacing: 5px;">****</div>
+                            <div id="attackStatus" style="margin-top: 10px; font-size: 12px; color: #94a3b8;">STATUS: IDLE</div>
+                            <div class="progress-bar" style="margin-top: 15px;"><div id="crackProgress" style="width: 0%"></div></div>
+                        </div>
+                        <div class="result" id="crackResult">Final Result: Awaiting initialization...</div>
+                    </div>
+                </div>
+            </div>
+            <!-- ===== SOC ANALYST SECTION ===== -->
+            <div id="socSection" class="toolSection">
+                <div class="dashboard-grid" style="grid-template-columns: 1fr; max-width: 860px;">
+
+                    <!-- API Key setup card — hidden once key is stored -->
+                    <div class="card" id="socKeyCard" style="border-color: rgba(249,115,22,0.4); display:none;">
+                        <h3><i class="fa-solid fa-key"></i> API Key Required</h3>
+                        <p style="font-size:12px; color:#94a3b8; margin-bottom:12px;">
+                            SENTINEL runs on the Anthropic API. Paste your API key below — it's stored only in <code>localStorage</code> on your machine, never sent anywhere except Anthropic's servers.
+                        </p>
+                        <div style="display:flex; gap:10px;">
+                            <input type="password" id="socApiKeyInput" placeholder="sk-ant-..." style="flex:1; font-family:monospace; font-size:12px;">
+                            <button onclick="saveSocKey()" style="width:auto; padding:10px 20px;">SAVE KEY</button>
+                        </div>
+                        <div id="socKeyStatus" style="font-size:11px; margin-top:8px; color:#64748b;"></div>
+                    </div>
+
+                    <!-- Main chat panel -->
+                    <div class="card" style="padding:0; overflow:hidden;">
+                        <!-- Header bar -->
+                        <div style="display:flex; justify-content:space-between; align-items:center; padding:16px 20px; border-bottom:1px solid rgba(56,189,248,0.12); background:rgba(0,0,0,0.3);">
+                            <div>
+                                <h3 style="margin:0; display:flex; align-items:center; gap:10px;">
+                                    <i class="fa-solid fa-shield-halved" style="color:var(--primary);"></i>
+                                    SENTINEL <span style="font-size:10px; color:#64748b; font-weight:normal; font-family:monospace;">// AI SOC ANALYST v1.0</span>
+                                </h3>
+                                <p style="font-size:10px; color:#64748b; margin:2px 0 0; font-family:monospace;" id="socStatusLine">Awaiting connection...</p>
+                            </div>
+                            <div style="display:flex; gap:8px; align-items:center;">
+                                <button onclick="clearSocChat()" class="mini-btn" style="width:auto; padding:5px 12px; font-size:10px;">NEW SESSION</button>
+                                <button onclick="showSocKeyCard()" class="mini-btn" style="width:auto; padding:5px 12px; font-size:10px; background:rgba(249,115,22,0.1); border-color:rgba(249,115,22,0.3); color:#f97316;">API KEY</button>
+                            </div>
+                        </div>
+
+                        <!-- Chat messages -->
+                        <div id="socMessages" style="height:420px; overflow-y:auto; padding:20px; display:flex; flex-direction:column; gap:14px;">
+                            <!-- seeded by JS on load -->
+                        </div>
+
+                        <!-- Input row -->
+                        <div style="padding:14px 20px; border-top:1px solid rgba(56,189,248,0.12); background:rgba(0,0,0,0.3); display:flex; gap:10px; align-items:flex-end;">
+                            <textarea id="socInput" placeholder="Ask SENTINEL anything security-related... e.g. 'Is this IP suspicious?', 'Explain SQL injection', 'Analyze this log line'" rows="2"
+                                style="flex:1; background:rgba(0,0,0,0.4); border:1px solid rgba(56,189,248,0.2); border-radius:6px; color:#e2e8f0; padding:10px 14px; font-family:monospace; font-size:12px; resize:none; outline:none; line-height:1.5;"
+                                onkeydown="socKeyHandler(event)"></textarea>
+                            <button onclick="socSubmit()" id="socSendBtn" style="width:auto; padding:10px 20px; height:fit-content;">
+                                <i class="fa-solid fa-paper-plane"></i> SEND
+                            </button>
+                        </div>
+                        <div style="padding:6px 20px 10px; font-size:9px; color:#334155; font-family:monospace;">
+                            Shift+Enter for new line &nbsp;|&nbsp; Enter to send &nbsp;|&nbsp; Or use <code style="color:#38bdf850;">ask &lt;question&gt;</code> in the terminal
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    
+    <footer class="sys-footer">
+    <div class="footer-left">
+        <span class="meta-item"><i class="fa-solid fa-code-merge"></i> BUILD: 2024.03.18-STABLE</span>
+        <span class="meta-item desktop-only"><i class="fa-solid fa-shield-halved"></i> KERNEL: CYBER_OS_X64</span>
+        <span class="meta-item desktop-only" style="color:#38bdf8; opacity:0.6;"><i class="fa-solid fa-brain"></i> SENTINEL: ONLINE</span>
+    </div>
+
+    <div class="footer-right">
+        <span class="meta-item" style="opacity:0.4; font-size:10px;">Ctrl+K</span>
+        <span class="meta-item">© 2024 <span class="dev-tag">FRANKLIN GEEZER</span></span>
+        <span class="meta-item version-pill">v2.5.0</span>
+    </div>
+</footer>
+<script src="script.js?v=999"></script>
+</body>
+</html>
